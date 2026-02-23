@@ -1,0 +1,37 @@
+name: Testes
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Configurar Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Instalar dependências
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Executar testes
+      run: |
+        python tests/test_calculator.py
+    
+    - name: Lint com flake8
+      run: |
+        pip install flake8
+        flake8 nutruai --count --select=E9,F63,F7,F82 --show-source --statistics
+      continue-on-error: true
